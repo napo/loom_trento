@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVG Interattivo con Leaflet</title>
+    <title>SVG Interattivo con Leaflet e Sfondo Bianco</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <style>
         body, html { margin: 0; width: 100%; height: 100%; }
@@ -18,20 +18,22 @@
         // Crea la mappa di base
         var map = L.map('map', {
             crs: L.CRS.Simple, // Coordinate semplici (non geografiche)
-            minZoom: -3, // Livello minimo di zoom
-            maxZoom: 3,  // Livello massimo di zoom
+            minZoom: -3, // Zoom minimo
+            maxZoom: 3,  // Zoom massimo
             zoomControl: true // Mostra i controlli di zoom (+ e -)
         });
 
-        // Definisce i bordi del file SVG (coordinata min e max)
-        var bounds = [[0, 0], [1000, 1000]];  // Adatta ai tuoi valori di SVG
+        // Definisce i bordi del file SVG (adatta alla tua immagine)
+        var bounds = [[0, 0], [1000, 1000]];  // Modifica in base alle dimensioni reali del tuo SVG
 
-        // Carica il file SVG come immagine sulla mappa
-        var image = L.imageOverlay("mappa.svg", bounds).addTo(map);  // Sostituisci con il tuo file SVG
+        // **Aggiunta dello sfondo bianco** come immagine base
+        var whiteBackground = L.rectangle(bounds, {color: "white", weight: 0, fill: true, fillOpacity: 1}).addTo(map);
+
+        // Carica il file SVG sopra lo sfondo
+        var image = L.imageOverlay("mappa.svg", bounds).addTo(map);  // Cambia con il tuo file SVG
 
         // Imposta la vista iniziale centrata
         map.fitBounds(bounds);
     </script>
 </body>
 </html>
-
