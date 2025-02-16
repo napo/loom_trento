@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Interattivo con Zoom, Sfondo e Click</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        svg { display: block; width: 100vw; height: 100vh; background: white; }
+        #info { 
+            position: absolute; 
+            top: 10px; 
+            left: 10px; 
+            background: rgba(255, 255, 255, 0.8); 
+            padding: 10px; 
+            border-radius: 5px; 
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <svg id="svg-container"></svg>
+    <div id="info">Clicca su un oggetto per vedere le sue proprietà</div>
+
+    <script>
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        // Creiamo il contenitore SVG principale
+        const svg = d3.select("#svg-container")
+            .attr("width", width)
+            .attr("height", height);
+
+        // Aggiungiamo uno sfondo bianco
+        svg.append("rect")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("fill", "white");
+
+        // Creiamo un gruppo per il contenuto zoomabile
+        const zoomGroup = svg.append("g");
+
+        // Funzione di zoom e pan
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 5])  // Zoom minimo e massimo
+            .on("zoom", (event) => {
+                zoomGroup.attr("transform", event.transform);
+            });
+
+        svg.call(zoom);
+
+        // Sezione info per mostrare le proprietà degli oggetti cliccati
+        const infoBox = d3.select("#info");
+
+        // Carichiamo il file SVG esterno
+        d3.xml("mappa.svg").then((data) => {  // Cambia con il tuo file SVG
+            const importedNode = document.importNode(data.documentElement, true);
+            zoomGroup.node().appendChild(importedNode);
+
+            // Seleziona tutti gli elementi dell'SVG caricato e gestisce il click
+            d3.select(zoomGroup.node()).selectAll("*")
+                .on("click", function(event) {
+                    event.stopPropagation(); // Evita di propagare il click allo sfondo
+
+                    let properties = {};
+                    for (let attr of this.attributes) {
+                        properties[attr.name] = attr.value;
+                    }
+
+                    console.log("Proprietà elemento cliccato:", properties);
+
+                    // Mostra le informazioni nella box
+                    infoBox.html(
+                        `<strong>Elemento:</strong> ${this.nodeName}<br>` +
+                        Object.entries(properties).map(([key, value]) => `<strong>${key}:</strong> ${value}`).join("<br>")
+                    );
+                });
+        });
+
+        // Se si clicca fuori da un elemento, si svuota la box
+        svg.on("click", () => infoBox.html("Clicca su un oggetto per vedere le sue proprietà"));
+    </script>
+</body>
+</html>
